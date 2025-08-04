@@ -1,0 +1,149 @@
+/* Light theme variables */
+.page[data-theme="light"] {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --muted-color: #6c757d;
+}
+
+/* Dark theme variables */
+.page[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --border-color: #404040;
+    --muted-color: #adb5bd;
+}
+
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+}
+
+.content {
+    padding: 2rem;
+    max-width: 100%;
+}
+
+/* Custom styles for the dashboard */
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-item strong {
+    color: var(--text-color);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: var(--muted-color);
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.metric-details {
+    font-size: 0.75rem;
+    color: var(--muted-color);
+    margin-top: 0.25rem;
+}
+
+.temperature.text-success {
+    color: #28a745 !important;
+}
+
+.temperature.text-warning {
+    color: #ffc107 !important;
+}
+
+.temperature.text-danger {
+    color: #dc3545 !important;
+}
+
+.connection-status i {
+    font-size: 1.1rem;
+}
+
+/* Card theming */
+.page[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.page[data-theme="dark"] .card-header {
+    border-color: var(--border-color);
+}
+
+.page[data-theme="dark"] .text-muted {
+    color: var(--muted-color) !important;
+}
+
+.page[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.page[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--border-color);
+    border-color: var(--border-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .content {
+        padding: 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .metric-card {
+        margin-bottom: 1rem;
+    }
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}

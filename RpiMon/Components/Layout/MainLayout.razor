@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page" data-theme="light">
+    <main>
+        <article class="content">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+<script>
+    window.toggleTheme = (isDarkMode) => {
+        const page = document.querySelector('.page');
+        if (page) {
+            page.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+        }
+    };
+</script>

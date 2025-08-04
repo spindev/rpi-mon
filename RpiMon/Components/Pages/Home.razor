@@ -1,0 +1,171 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@using RpiMon.Models
+@implements IAsyncDisposable
+@rendermode InteractiveServer
+
+<PageTitle>rpi-mon</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-4 text-primary">
+                    <i class="fas fa-microchip me-2"></i>
+                    rpi-mon
+                </h1>
+                <div class="text-end">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleTheme">
+                        <i class="fas @(isDarkMode ? "fa-sun" : "fa-moon") me-1"></i>
+                        @(isDarkMode ? "Light" : "Dark")
+                    </button>
+                </div>
+            </div>
+            <p class="lead text-muted">Real-time system monitoring for your Raspberry Pi</p>
+        </div>
+    </div>
+
+    @if (staticSystemInfo != null && dynamicSystemInfo != null)
+    {
+        <div class="row g-4">
+            <!-- System Information Card -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            System Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Operating System:</strong>
+                                    <div class="text-muted">@staticSystemInfo.OperatingSystem</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Architecture:</strong>
+                                    <div class="text-muted">@staticSystemInfo.Architecture</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Model:</strong>
+                                    <div class="text-muted">@staticSystemInfo.Model</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>RAM Size:</strong>
+                                    <div class="text-muted">@staticSystemInfo.RamSize</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <strong>CPU:</strong>
+                                    <div class="text-muted">@staticSystemInfo.CpuInfo (@staticSystemInfo.CpuCoreCount cores)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics Card -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Performance Metrics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (dynamicSystemInfo.CpuTemperature > 0)
+                            {
+                                <div class="col-sm-6">
+                                    <div class="metric-card">
+                                        <div class="metric-label">CPU Temperature</div>
+                                        <div class="metric-value temperature @GetTemperatureClass(dynamicSystemInfo.CpuTemperature)">
+                                            @dynamicSystemInfo.CpuTemperature.ToString("F1")°C
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">CPU Usage</div>
+                                    <div class="metric-value">
+                                        @dynamicSystemInfo.CpuUsage.ToString("F1")%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">Memory Usage</div>
+                                    <div class="metric-value">
+                                        @dynamicSystemInfo.MemoryUsage.ToString("F1")%
+                                    </div>
+                                    <div class="metric-details">
+                                        @((dynamicSystemInfo.MemoryTotal - dynamicSystemInfo.MemoryAvailable).ToString("F0")) / @dynamicSystemInfo.MemoryTotal.ToString("F0") MB
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">Memory Available</div>
+                                    <div class="metric-value">
+                                        @dynamicSystemInfo.MemoryAvailable.ToString("F0") MB
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="connection-status">
+                                <i class="fas @(isConnected ? "fa-wifi text-success" : "fa-wifi-slash text-danger") me-2"></i>
+                                <span class="@(isConnected ? "text-success" : "text-danger")">
+                                    @(isConnected ? "Connected" : "Disconnected")
+                                </span>
+                            </div>
+                            <div class="last-updated">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Last updated: @dynamicSystemInfo.LastUpdated.ToString("HH:mm:ss")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5>Loading system information...</h5>
+                        <p class="text-muted">@(isLoadingStatic ? "Gathering hardware details..." : "Connecting to rpi-mon...")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
