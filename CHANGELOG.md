@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/spindev/rpi-mon/compare/v1.1.3...v1.1.4) (2025-08-04)
+
+
+### Bug Fixes
+
+* Resolve startup warnings by properly configuring data protection for monitoring applications ([#25](https://github.com/spindev/rpi-mon/issues/25)) ([848c8a5](https://github.com/spindev/rpi-mon/commit/848c8a5bc045536b658be453ffda198a01209bbe))
+
 ## [1.1.3](https://github.com/spindev/rpi-mon/compare/v1.1.2...v1.1.3) (2025-08-04)
 
 
