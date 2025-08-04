@@ -169,9 +169,6 @@ _pkginfo.txt
 *.userosscache
 *.sln.docstates
 
-# Docker
-.dockerignore
-
 # Temporary files
 *.tmp
 *.temp
