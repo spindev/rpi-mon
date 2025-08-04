@@ -49,6 +49,6 @@ jobs:
         file: ./Dockerfile
         push: false
         tags: rpi-mon:test
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         cache-from: type=gha
         cache-to: type=gha,mode=max

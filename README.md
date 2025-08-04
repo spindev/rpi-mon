@@ -37,6 +37,15 @@ The easiest way to get rpi-mon running on your Raspberry Pi:
 
 That's it! The application will automatically detect your Raspberry Pi hardware and start displaying live metrics.
 
+### Platform Compatibility
+
+The Docker images support multiple architectures:
+- **linux/amd64** - For x86_64 systems
+- **linux/arm64** - For Raspberry Pi 4, Pi 5, and other ARM64 devices
+- **linux/arm/v7** - For older Raspberry Pi models (Pi 2, Pi 3)
+
+Docker will automatically pull the correct image for your platform. If you encounter platform issues, see the troubleshooting section below.
+
 ## Manual Docker Deployment
 
 If you prefer to use Docker directly or build the image from source:
@@ -80,6 +89,41 @@ The application works out of the box with no configuration needed. It automatica
 - Monitors system resources
 - Provides real-time updates
 - Adapts the interface for mobile devices
+
+## Troubleshooting
+
+### Platform Issues on ARM64 Devices
+
+If you see platform mismatch errors like "exec format error" on Raspberry Pi 5 or other ARM64 devices:
+
+1. **Specify platform in docker-compose.yml:**
+   ```yaml
+   services:
+     rpi-mon:
+       image: ghcr.io/spindev/rpi-mon:latest
+       platform: linux/arm64  # Add this line
+       # ... rest of configuration
+   ```
+
+2. **Build locally instead:**
+   ```bash
+   # Comment out 'image:' line and uncomment 'build:' in docker-compose.yml
+   docker-compose build
+   docker-compose up -d
+   ```
+
+3. **Use explicit platform flag:**
+   ```bash
+   docker run -d \
+     --name rpi-mon \
+     --platform linux/arm64 \
+     -p 5000:5000 \
+     -v /proc:/host/proc:ro \
+     -v /sys:/host/sys:ro \
+     -v /etc:/host/etc:ro \
+     --privileged \
+     ghcr.io/spindev/rpi-mon:latest
+   ```
 
 ## License
 
