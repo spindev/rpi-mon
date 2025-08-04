@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/spindev/rpi-mon/compare/v1.1.2...v1.1.3) (2025-08-04)
+
+
+### Bug Fixes
+
+* Docker container shell error by using /bin/sh instead of /bin/bash ([#24](https://github.com/spindev/rpi-mon/issues/24)) ([0d09447](https://github.com/spindev/rpi-mon/commit/0d094471cb5e0fe189ede48c56fdcaa1a1d887b5))
+
 ## [1.1.2](https://github.com/spindev/rpi-mon/compare/v1.1.1...v1.1.2) (2025-08-04)
 
 
