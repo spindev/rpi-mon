@@ -23,9 +23,9 @@ jobs:
       issues: write
       pull-requests: write
     outputs:
-      new-release-published: ${{ steps.semantic.outputs.new-release-published }}
-      new-release-version: ${{ steps.semantic.outputs.new-release-version }}
-      new-release-git-tag: ${{ steps.semantic.outputs.new-release-git-tag }}
+      new-release-published: ${{ steps.semantic.outputs.new_release_published }}
+      new-release-version: ${{ steps.semantic.outputs.new_release_version }}
+      new-release-git-tag: ${{ steps.semantic.outputs.new_release_git_tag }}
     steps:
       - uses: actions/create-github-app-token@v2
         id: app-token
