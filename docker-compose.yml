@@ -17,4 +17,11 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
-    privileged: true  # Needed for full system access
+    # Use specific capabilities instead of privileged mode for better security
+    cap_add:
+      - SYS_ADMIN  # Needed for reading system information
+    security_opt:
+      - no-new-privileges:true  # Prevent privilege escalation
+    read_only: true  # Make container filesystem read-only
+    tmpfs:
+      - /tmp  # Allow temporary files in tmpfs

@@ -1,39 +1,54 @@
-# Use the official .NET SDK image for building
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Multi-stage Docker build optimized for size and security
+# Use the official .NET SDK Alpine image for building
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the project file and restore dependencies
-COPY RpiMon/RpiMon.csproj .
-RUN dotnet restore
+# Copy only the project file first for better layer caching
+COPY ["RpiMon/RpiMon.csproj", "./"]
+RUN dotnet restore --verbosity minimal
 
 # Copy the rest of the source code
 COPY RpiMon/ .
 
-# Build the application
-RUN dotnet publish -c Release -o out
+# Build and publish the application with optimizations
+RUN dotnet publish -c Release -o out \
+    --no-restore \
+    --verbosity minimal
 
-# Use the official .NET runtime image for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Runtime stage with minimal Alpine image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 
-# Install system dependencies for getting hardware info
-RUN apt-get update && apt-get install -y \
+# Install only essential system dependencies for hardware monitoring
+RUN apk add --no-cache \
     procps \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
+
+# Create a non-root user for better security
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the published application
+# Copy the published application from build stage
 COPY --from=build /app/out .
 
-# Expose port 5000
+# Set proper ownership
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose the application port
 EXPOSE 5000
 
-# Set environment variables
-ENV ASPNETCORE_URLS=http://+:5000
-ENV ASPNETCORE_ENVIRONMENT=Production
+# Configure environment variables for optimization
+ENV ASPNETCORE_URLS=http://+:5000 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
 # Run the application
 ENTRYPOINT ["dotnet", "RpiMon.dll"]
