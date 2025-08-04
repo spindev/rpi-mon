@@ -1,0 +1,220 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@using RpiMon.Models
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>RPi Monitor</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-4 text-primary">
+                    <i class="fas fa-microchip me-2"></i>
+                    Raspberry Pi Monitor
+                </h1>
+                <div class="text-end">
+                    <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleTheme">
+                        <i class="fas @(isDarkMode ? "fa-sun" : "fa-moon") me-1"></i>
+                        @(isDarkMode ? "Light" : "Dark")
+                    </button>
+                </div>
+            </div>
+            <p class="lead text-muted">Real-time system monitoring for your Raspberry Pi</p>
+        </div>
+    </div>
+
+    @if (systemInfo != null)
+    {
+        <div class="row g-4">
+            <!-- System Information Card -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            System Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Operating System:</strong>
+                                    <div class="text-muted">@systemInfo.OperatingSystem</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Architecture:</strong>
+                                    <div class="text-muted">@systemInfo.Architecture</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>Model:</strong>
+                                    <div class="text-muted">@systemInfo.Model</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="info-item">
+                                    <strong>RAM Size:</strong>
+                                    <div class="text-muted">@systemInfo.RamSize</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="info-item">
+                                    <strong>CPU:</strong>
+                                    <div class="text-muted">@systemInfo.CpuInfo</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics Card -->
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Performance Metrics
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @if (systemInfo.CpuTemperature > 0)
+                            {
+                                <div class="col-sm-6">
+                                    <div class="metric-card">
+                                        <div class="metric-label">CPU Temperature</div>
+                                        <div class="metric-value temperature @GetTemperatureClass(systemInfo.CpuTemperature)">
+                                            @systemInfo.CpuTemperature.ToString("F1")°C
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">CPU Usage</div>
+                                    <div class="metric-value">
+                                        @systemInfo.CpuUsage.ToString("F1")%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">Memory Usage</div>
+                                    <div class="metric-value">
+                                        @systemInfo.MemoryUsage.ToString("F1")%
+                                    </div>
+                                    <div class="metric-details">
+                                        @((systemInfo.MemoryTotal - systemInfo.MemoryAvailable).ToString("F0")) / @systemInfo.MemoryTotal.ToString("F0") MB
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="metric-card">
+                                    <div class="metric-label">Memory Available</div>
+                                    <div class="metric-value">
+                                        @systemInfo.MemoryAvailable.ToString("F0") MB
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="connection-status">
+                                <i class="fas @(isConnected ? "fa-wifi text-success" : "fa-wifi-slash text-danger") me-2"></i>
+                                <span class="@(isConnected ? "text-success" : "text-danger")">
+                                    @(isConnected ? "Connected" : "Disconnected")
+                                </span>
+                            </div>
+                            <div class="last-updated">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Last updated: @systemInfo.LastUpdated.ToString("HH:mm:ss")
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5>Loading system information...</h5>
+                        <p class="text-muted">Connecting to Raspberry Pi...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private HubConnection? hubConnection;
+    private SystemInfo? systemInfo;
+    private bool isConnected = false;
+    private bool isDarkMode = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/systeminfohub"))
+            .Build();
+
+        hubConnection.On<SystemInfo>("ReceiveSystemInfo", (info) =>
+        {
+            systemInfo = info;
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        isConnected = hubConnection.State == HubConnectionState.Connected;
+    }
+
+    private string GetTemperatureClass(double temperature)
+    {
+        return temperature switch
+        {
+            >= 80 => "text-danger",
+            >= 70 => "text-warning",
+            _ => "text-success"
+        };
+    }
+
+    private async Task ToggleTheme()
+    {
+        isDarkMode = !isDarkMode;
+        await JSRuntime.InvokeVoidAsync("toggleTheme", isDarkMode);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
