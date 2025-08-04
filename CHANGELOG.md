@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/spindev/rpi-mon/compare/v1.0.2...v1.1.0) (2025-08-04)
+
+
+### Features
+
+* Optimize Docker build for reduced image size and enhanced security ([#15](https://github.com/spindev/rpi-mon/issues/15)) ([3f8fbf2](https://github.com/spindev/rpi-mon/commit/3f8fbf27a7f6989ac84dd55a05535ca516485827))
+
 ## [1.0.2](https://github.com/spindev/rpi-mon/compare/v1.0.1...v1.0.2) (2025-08-04)
 
 
