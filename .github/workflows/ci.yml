@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: |
+        dotnet restore RpiMon/RpiMon.csproj
+        dotnet restore RpiMon.Tests/RpiMon.Tests.csproj
+        
+    - name: Build
+      run: |
+        dotnet build RpiMon/RpiMon.csproj --no-restore --configuration Release
+        dotnet build RpiMon.Tests/RpiMon.Tests.csproj --no-restore --configuration Release
+        
+    - name: Test
+      run: dotnet test RpiMon.Tests/RpiMon.Tests.csproj --no-build --configuration Release --verbosity normal
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: rpi-mon:test
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
