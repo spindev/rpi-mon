@@ -15,10 +15,54 @@
 </div>
 
 <script>
-    window.toggleTheme = (isDarkMode) => {
+    let isDarkMode = false;
+    
+    window.toggleTheme = (darkMode) => {
+        // If called with a parameter, use it; otherwise toggle
+        if (darkMode !== undefined) {
+            isDarkMode = darkMode;
+        } else {
+            isDarkMode = !isDarkMode;
+        }
+        
         const page = document.querySelector('.page');
         if (page) {
             page.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            
+            // Update button text and icon
+            updateThemeButton();
         }
     };
+    
+    function updateThemeButton() {
+        const button = document.querySelector('button');
+        if (button && (button.textContent.includes('Dark') || button.textContent.includes('Light'))) {
+            const icon = isDarkMode ? 'fa-sun' : 'fa-moon';
+            const text = isDarkMode ? 'Light' : 'Dark';
+            button.innerHTML = `<i class="fas ${icon} me-1"></i>${text}`;
+        }
+    }
+    
+    // Initialize theme toggle functionality
+    function initThemeToggle() {
+        const button = document.querySelector('button');
+        if (button && (button.textContent.includes('Dark') || button.textContent.includes('Light'))) {
+            // Override the button click to use our JavaScript function
+            button.onclick = (e) => {
+                e.preventDefault();
+                window.toggleTheme();
+                return false;
+            };
+        }
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initThemeToggle);
+    } else {
+        initThemeToggle();
+    }
+    
+    // Also try after a delay to handle dynamic content
+    setTimeout(initThemeToggle, 1000);
 </script>

@@ -53,7 +53,16 @@ public partial class Home : IAsyncDisposable
     private async Task ToggleTheme()
     {
         isDarkMode = !isDarkMode;
-        await JSRuntime.InvokeVoidAsync("toggleTheme", isDarkMode);
+        
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("toggleTheme", isDarkMode);
+        }
+        catch (Exception)
+        {
+            // If Blazor JS interop fails, the direct JS click handler will take over
+            // This provides a fallback when SignalR connection issues occur
+        }
     }
 
     public async ValueTask DisposeAsync()
