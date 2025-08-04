@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/spindev/rpi-mon/compare/v1.1.5...v1.1.6) (2025-08-04)
+
+
+### Bug Fixes
+
+* Disable antiforgery protection to fix SignalR connection issues ([#31](https://github.com/spindev/rpi-mon/issues/31)) ([a872bda](https://github.com/spindev/rpi-mon/commit/a872bdae69ddea8ccf0bb02e54690b116676e3b7))
+
 ## [1.1.5](https://github.com/spindev/rpi-mon/compare/v1.1.4...v1.1.5) (2025-08-04)
 
 
