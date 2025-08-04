@@ -1,6 +1,11 @@
 services:
   rpi-mon:
     image: ghcr.io/spindev/rpi-mon:latest
+    # If you encounter platform issues on Raspberry Pi, you can:
+    # 1. Uncomment the next line to force ARM64 platform selection
+    # platform: linux/arm64
+    # 2. Or build locally: docker-compose build
+    # build: .
     ports:
       - "5000:5000"
     restart: unless-stopped
