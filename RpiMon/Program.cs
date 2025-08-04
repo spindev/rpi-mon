@@ -3,15 +3,19 @@ using RpiMon.Services;
 using RpiMon.Hubs;
 using Microsoft.AspNetCore.DataProtection;
 
+// Clear conflicting environment variables before creating WebApplication builder
+// This prevents the "Overriding HTTP_PORTS/HTTPS_PORTS" warning
+Environment.SetEnvironmentVariable("HTTP_PORTS", null);
+Environment.SetEnvironmentVariable("HTTPS_PORTS", null);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure data protection to persist keys
 builder.Services.AddDataProtection()
     .SetApplicationName("RpiMon")
     .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"));
-// Configure URLs programmatically to avoid environment variable conflicts
-// This prevents the "Overriding HTTP_PORTS/HTTPS_PORTS" warning that occurs
-// when ASPNETCORE_URLS environment variable conflicts with other port settings
+// Configure URLs programmatically  
+// This ensures the application uses the intended port configuration
 builder.WebHost.UseUrls("http://+:5000");
 
 // Add services to the container.
@@ -34,7 +38,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Removed: Application only works on HTTP
 
 app.UseStaticFiles();
 // Antiforgery disabled - not needed for read-only monitoring application
