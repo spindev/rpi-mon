@@ -152,4 +152,19 @@ public class SystemInfoServiceTests
         Assert.True(coreCount > 0, "CPU core count should be positive");
         Assert.True(coreCount <= 128, "CPU core count should be reasonable (≤128)");
     }
+
+    [Fact]
+    public async Task GetOperatingSystem_ShouldNotFailInContainer()
+    {
+        // Act & Assert - This test ensures that the OS detection doesn't crash
+        // even when running in a container environment where shell commands might fail
+        var result = await _systemInfoService.GetStaticSystemInfoAsync();
+        
+        // Should not throw and should return some OS information
+        Assert.NotNull(result.OperatingSystem);
+        Assert.NotEmpty(result.OperatingSystem);
+        
+        // Should work on both Linux and other platforms
+        Assert.True(result.OperatingSystem.Length > 0);
+    }
 }
