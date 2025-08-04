@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/spindev/rpi-mon/compare/v1.0.0...v1.0.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* update deploy.yml ([#11](https://github.com/spindev/rpi-mon/issues/11)) ([4107fbf](https://github.com/spindev/rpi-mon/commit/4107fbfe15cff1d955214557bd419732468edef7))
+
 # 1.0.0 (2025-08-04)
 
 
