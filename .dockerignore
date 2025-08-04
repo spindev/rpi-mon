@@ -1,0 +1,46 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD  
+.github/
+.releaserc.json
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+DOCKER_OPTIMIZATIONS.md
+
+# Tests - exclude test projects
+RpiMon.Tests/
+*.Tests/
+*Test*/
+
+# Development files
+.vscode/
+.vs/
+.idea/
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+logs/
+temp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker files not needed in build context
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile.dev
