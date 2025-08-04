@@ -2,44 +2,96 @@ name: Deploy to GHCR
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      test_semantic_release:
+        description: 'Test semantic release (dry-run mode)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      new-release-published: ${{ steps.semantic.outputs.new-release-published }}
+      new-release-version: ${{ steps.semantic.outputs.new-release-version }}
+      new-release-git-tag: ${{ steps.semantic.outputs.new-release-git-tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          dry_run: >-
+            ${{ github.event_name == 'workflow_dispatch' &&
+            github.event.inputs.test_semantic_release == 'true' }}
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-push:
+    needs: semantic-release
+    if: >-
+      ${{ needs.semantic-release.outputs.new-release-published == 'true' ||
+      github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Log in to Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract metadata (tags, labels) for Docker
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+      - name: Set release variables
+        id: vars
+        run: |
+          condition="${{ needs.semantic-release.outputs.new-release-published == 'true' }}"
+          version="${{ needs.semantic-release.outputs.new-release-version }}"
+          tag="${{ needs.semantic-release.outputs.new-release-git-tag }}"
+          echo "is-release=$condition" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "tag=$tag" >> $GITHUB_OUTPUT
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.vars.outputs.version }},enable=${{ steps.vars.outputs.is-release }}
+            type=raw,value=${{ steps.vars.outputs.tag }},enable=${{ steps.vars.outputs.is-release }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
