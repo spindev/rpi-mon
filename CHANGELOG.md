@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/spindev/rpi-mon/compare/v1.0.1...v1.0.2) (2025-08-04)
+
+
+### Bug Fixes
+
+* Docker multi-platform support for Raspberry Pi ARM64 devices only ([#13](https://github.com/spindev/rpi-mon/issues/13)) ([bbe1296](https://github.com/spindev/rpi-mon/commit/bbe1296fccee36c2fe6758640be5ff2cb21481b7))
+
 ## [1.0.1](https://github.com/spindev/rpi-mon/compare/v1.0.0...v1.0.1) (2025-08-04)
 
 
