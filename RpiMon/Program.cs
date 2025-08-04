@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure data protection to persist keys
 builder.Services.AddDataProtection()
+    .SetApplicationName("RpiMon")
     .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"));
 
 // Add services to the container.
