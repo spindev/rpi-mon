@@ -39,12 +39,11 @@ That's it! The application will automatically detect your Raspberry Pi hardware 
 
 ### Platform Compatibility
 
-The Docker images support multiple architectures:
-- **linux/amd64** - For x86_64 systems
+The Docker images are specifically built for Raspberry Pi devices:
 - **linux/arm64** - For Raspberry Pi 4, Pi 5, and other ARM64 devices
 - **linux/arm/v7** - For older Raspberry Pi models (Pi 2, Pi 3)
 
-Docker will automatically pull the correct image for your platform. If you encounter platform issues, see the troubleshooting section below.
+Docker will automatically pull the correct image for your Raspberry Pi platform.
 
 ## Manual Docker Deployment
 
