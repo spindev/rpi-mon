@@ -9,10 +9,12 @@ namespace RpiMon.Tests.Services;
 public class SystemInfoServiceTests
 {
     private readonly SystemInfoService _systemInfoService;
+    private readonly Mock<ILogger<SystemInfoService>> _mockLogger;
     
     public SystemInfoServiceTests()
     {
-        _systemInfoService = new SystemInfoService();
+        _mockLogger = new Mock<ILogger<SystemInfoService>>();
+        _systemInfoService = new SystemInfoService(_mockLogger.Object);
     }
 
     [Fact]

@@ -7,10 +7,12 @@ namespace RpiMon.Hubs;
 public class SystemInfoHub : Hub
 {
     private readonly ISystemInfoService _systemInfoService;
+    private readonly ILogger<SystemInfoHub> _logger;
 
-    public SystemInfoHub(ISystemInfoService systemInfoService)
+    public SystemInfoHub(ISystemInfoService systemInfoService, ILogger<SystemInfoHub> logger)
     {
         _systemInfoService = systemInfoService;
+        _logger = logger;
     }
 
     public async Task GetSystemInfo()
@@ -43,21 +45,31 @@ public class SystemInfoHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        try
-        {
-            // Send static info immediately on connection
-            var staticInfo = await _systemInfoService.GetStaticSystemInfoAsync();
-            await Clients.Caller.SendAsync("ReceiveStaticSystemInfo", staticInfo);
+        _logger.LogInformation("Client {ConnectionId} connecting...", Context.ConnectionId);
+        
+        // Send static info immediately on connection
+        var staticInfo = await _systemInfoService.GetStaticSystemInfoAsync();
+        await Clients.Caller.SendAsync("ReceiveStaticSystemInfo", staticInfo);
 
-            // Send initial dynamic info
-            var dynamicInfo = await _systemInfoService.GetDynamicSystemInfoAsync();
-            await Clients.Caller.SendAsync("ReceiveDynamicSystemInfo", dynamicInfo);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in OnConnectedAsync: {ex.Message}");
-        }
+        // Send initial dynamic info
+        var dynamicInfo = await _systemInfoService.GetDynamicSystemInfoAsync();
+        await Clients.Caller.SendAsync("ReceiveDynamicSystemInfo", dynamicInfo);
 
         await base.OnConnectedAsync();
+        _logger.LogInformation("Client {ConnectionId} connected successfully", Context.ConnectionId);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        if (exception != null)
+        {
+            _logger.LogError(exception, "Client {ConnectionId} disconnected with error: {Message}", Context.ConnectionId, exception.Message);
+        }
+        else
+        {
+            _logger.LogInformation("Client {ConnectionId} disconnected normally", Context.ConnectionId);
+        }
+        
+        await base.OnDisconnectedAsync(exception);
     }
 }

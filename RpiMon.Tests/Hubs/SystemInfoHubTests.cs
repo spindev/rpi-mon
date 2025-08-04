@@ -11,6 +11,7 @@ namespace RpiMon.Tests.Hubs;
 public class SystemInfoHubTests
 {
     private readonly Mock<ISystemInfoService> _mockSystemInfoService;
+    private readonly Mock<ILogger<SystemInfoHub>> _mockLogger;
     private readonly Mock<IHubCallerClients> _mockClients;
     private readonly Mock<ISingleClientProxy> _mockClientProxy;
     private readonly Mock<IGroupManager> _mockGroups;
@@ -20,12 +21,13 @@ public class SystemInfoHubTests
     public SystemInfoHubTests()
     {
         _mockSystemInfoService = new Mock<ISystemInfoService>();
+        _mockLogger = new Mock<ILogger<SystemInfoHub>>();
         _mockClients = new Mock<IHubCallerClients>();
         _mockClientProxy = new Mock<ISingleClientProxy>();
         _mockGroups = new Mock<IGroupManager>();
         _mockContext = new Mock<HubCallerContext>();
 
-        _hub = new SystemInfoHub(_mockSystemInfoService.Object)
+        _hub = new SystemInfoHub(_mockSystemInfoService.Object, _mockLogger.Object)
         {
             Clients = _mockClients.Object,
             Groups = _mockGroups.Object,

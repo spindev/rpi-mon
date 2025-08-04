@@ -13,6 +13,12 @@ public interface ISystemInfoService
 
 public class SystemInfoService : ISystemInfoService
 {
+    private readonly ILogger<SystemInfoService> _logger;
+
+    public SystemInfoService(ILogger<SystemInfoService> logger)
+    {
+        _logger = logger;
+    }
     public async Task<SystemInfo> GetSystemInfoAsync()
     {
         var staticInfo = await GetStaticSystemInfoAsync();
@@ -124,7 +130,7 @@ public class SystemInfoService : ISystemInfoService
         catch (Exception ex)
         {
             // Log error if needed
-            Console.WriteLine($"Error getting model: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting model: {Message}", ex.Message);
         }
 
         return "Unknown";
@@ -164,7 +170,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting RAM size: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting RAM size: {Message}", ex.Message);
         }
 
         // Fallback for non-Linux systems
@@ -205,7 +211,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting CPU info: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting CPU info: {Message}", ex.Message);
         }
 
         return Environment.ProcessorCount + " Core(s)";
@@ -232,7 +238,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting CPU temperature: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting CPU temperature: {Message}", ex.Message);
         }
 
         return 0;
@@ -272,7 +278,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting CPU usage: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting CPU usage: {Message}", ex.Message);
             return 0;
         }
     }
@@ -304,7 +310,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting memory usage: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting memory usage: {Message}", ex.Message);
         }
 
         return 0;
@@ -328,7 +334,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting total memory: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting total memory: {Message}", ex.Message);
         }
 
         return 0;
@@ -352,7 +358,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error getting available memory: {ex.Message}");
+            _logger.LogWarning(ex, "Error getting available memory: {Message}", ex.Message);
         }
 
         return 0;
@@ -396,7 +402,7 @@ public class SystemInfoService : ISystemInfoService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error executing command '{command}': {ex.Message}");
+            _logger.LogWarning(ex, "Error executing command '{Command}': {Message}", command, ex.Message);
             return string.Empty;
         }
     }
