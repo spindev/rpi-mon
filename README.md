@@ -21,6 +21,21 @@ rpi-mon is a lightweight monitoring solution for Raspberry Pi devices. It displa
 
 The easiest way to get rpi-mon running on your Raspberry Pi:
 
+### Option 1: Using Pre-built Image (Recommended)
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/spindev/rpi-mon.git
+   cd rpi-mon
+   ```
+
+2. **Start with pre-built image:**
+   ```bash
+   docker-compose -f docker-compose.prebuilt.yml up -d
+   ```
+
+### Option 2: Build from Source
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/spindev/rpi-mon.git
@@ -37,9 +52,24 @@ The easiest way to get rpi-mon running on your Raspberry Pi:
 
 That's it! The application will automatically detect your Raspberry Pi hardware and start displaying live metrics.
 
+## Using Pre-built Docker Image
+
+You can use the pre-built image from GitHub Container Registry:
+
+```bash
+docker run -d \
+  --name rpi-mon \
+  -p 5000:5000 \
+  -v /proc:/host/proc:ro \
+  -v /sys:/host/sys:ro \
+  -v /etc:/host/etc:ro \
+  --privileged \
+  ghcr.io/spindev/rpi-mon:latest
+```
+
 ## Manual Docker Deployment
 
-If you prefer to use Docker directly:
+If you prefer to build the image yourself:
 
 ```bash
 docker build -t rpi-mon .

@@ -1,0 +1,15 @@
+services:
+  rpi-mon:
+    image: ghcr.io/spindev/rpi-mon:latest
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    volumes:
+      # Mount system information directories for reading hardware info
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc:/host/etc:ro
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+    privileged: true  # Needed for full system access
