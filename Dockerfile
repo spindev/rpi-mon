@@ -37,9 +37,7 @@ USER appuser
 EXPOSE 5000
 
 # Configure environment variables for optimization
-ENV ASPNETCORE_URLS=http://+:5000 \
-    ASPNETCORE_ENVIRONMENT=Production \
-    DOTNET_RUNNING_IN_CONTAINER=true \
+ENV DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 
 # Run the application

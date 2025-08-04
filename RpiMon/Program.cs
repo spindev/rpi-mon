@@ -4,6 +4,9 @@ using RpiMon.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure URLs to avoid port binding warnings
+builder.WebHost.UseUrls("http://+:5000");
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
