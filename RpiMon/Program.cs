@@ -4,7 +4,9 @@ using RpiMon.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure URLs to avoid port binding warnings
+// Configure URLs programmatically to avoid environment variable conflicts
+// This prevents the "Overriding HTTP_PORTS/HTTPS_PORTS" warning that occurs
+// when ASPNETCORE_URLS environment variable conflicts with other port settings
 builder.WebHost.UseUrls("http://+:5000");
 
 // Add services to the container.
