@@ -39,8 +39,21 @@ That's it! The application will automatically detect your Raspberry Pi hardware 
 
 ## Manual Docker Deployment
 
-If you prefer to use Docker directly:
+If you prefer to use Docker directly or build the image from source:
 
+**Using the pre-built image:**
+```bash
+docker run -d \
+  --name rpi-mon \
+  -p 5000:5000 \
+  -v /proc:/host/proc:ro \
+  -v /sys:/host/sys:ro \
+  -v /etc:/host/etc:ro \
+  --privileged \
+  ghcr.io/spindev/rpi-mon:latest
+```
+
+**Building from source:**
 ```bash
 docker build -t rpi-mon .
 

@@ -1,8 +1,6 @@
 services:
   rpi-mon:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/spindev/rpi-mon:latest
     ports:
       - "5000:5000"
     restart: unless-stopped
