@@ -1,9 +1,14 @@
 using RpiMon.Components;
 using RpiMon.Services;
 using RpiMon.Hubs;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure data protection to persist keys
+builder.Services.AddDataProtection()
+    .SetApplicationName("RpiMon")
+    .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"));
 // Configure URLs programmatically to avoid environment variable conflicts
 // This prevents the "Overriding HTTP_PORTS/HTTPS_PORTS" warning that occurs
 // when ASPNETCORE_URLS environment variable conflicts with other port settings
