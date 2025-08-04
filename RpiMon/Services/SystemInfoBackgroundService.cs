@@ -25,16 +25,17 @@ public class SystemInfoBackgroundService : BackgroundService
                 var systemInfoService = scope.ServiceProvider.GetRequiredService<ISystemInfoService>();
                 var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<SystemInfoHub>>();
 
-                var systemInfo = await systemInfoService.GetSystemInfoAsync();
+                // Only broadcast dynamic info - static info is sent once on connection
+                var dynamicInfo = await systemInfoService.GetDynamicSystemInfoAsync();
                 
                 // Broadcast to all connected clients
-                await hubContext.Clients.All.SendAsync("ReceiveSystemInfo", systemInfo, stoppingToken);
+                await hubContext.Clients.All.SendAsync("ReceiveDynamicSystemInfo", dynamicInfo, stoppingToken);
                 
-                _logger.LogInformation("System info broadcasted at {Time}", DateTime.Now);
+                _logger.LogInformation("Dynamic system info broadcasted at {Time}", DateTime.Now);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while broadcasting system info");
+                _logger.LogError(ex, "Error occurred while broadcasting dynamic system info");
             }
 
             // Wait 5 seconds before next update

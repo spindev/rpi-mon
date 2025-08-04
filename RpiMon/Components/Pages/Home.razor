@@ -2,11 +2,9 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using RpiMon.Models
 @implements IAsyncDisposable
-@inject IJSRuntime JSRuntime
-@inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<PageTitle>RPi Monitor</PageTitle>
+<PageTitle>rpi-mon</PageTitle>
 
 <div class="container-fluid">
     <div class="row mb-4">
@@ -14,7 +12,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <h1 class="display-4 text-primary">
                     <i class="fas fa-microchip me-2"></i>
-                    Raspberry Pi Monitor
+                    rpi-mon
                 </h1>
                 <div class="text-end">
                     <button class="btn btn-outline-secondary btn-sm" @onclick="ToggleTheme">
@@ -27,7 +25,7 @@
         </div>
     </div>
 
-    @if (systemInfo != null)
+    @if (staticSystemInfo != null && dynamicSystemInfo != null)
     {
         <div class="row g-4">
             <!-- System Information Card -->
@@ -44,31 +42,31 @@
                             <div class="col-sm-6">
                                 <div class="info-item">
                                     <strong>Operating System:</strong>
-                                    <div class="text-muted">@systemInfo.OperatingSystem</div>
+                                    <div class="text-muted">@staticSystemInfo.OperatingSystem</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="info-item">
                                     <strong>Architecture:</strong>
-                                    <div class="text-muted">@systemInfo.Architecture</div>
+                                    <div class="text-muted">@staticSystemInfo.Architecture</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="info-item">
                                     <strong>Model:</strong>
-                                    <div class="text-muted">@systemInfo.Model</div>
+                                    <div class="text-muted">@staticSystemInfo.Model</div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="info-item">
                                     <strong>RAM Size:</strong>
-                                    <div class="text-muted">@systemInfo.RamSize</div>
+                                    <div class="text-muted">@staticSystemInfo.RamSize</div>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="info-item">
                                     <strong>CPU:</strong>
-                                    <div class="text-muted">@systemInfo.CpuInfo</div>
+                                    <div class="text-muted">@staticSystemInfo.CpuInfo (@staticSystemInfo.CpuCoreCount cores)</div>
                                 </div>
                             </div>
                         </div>
@@ -87,13 +85,13 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
-                            @if (systemInfo.CpuTemperature > 0)
+                            @if (dynamicSystemInfo.CpuTemperature > 0)
                             {
                                 <div class="col-sm-6">
                                     <div class="metric-card">
                                         <div class="metric-label">CPU Temperature</div>
-                                        <div class="metric-value temperature @GetTemperatureClass(systemInfo.CpuTemperature)">
-                                            @systemInfo.CpuTemperature.ToString("F1")°C
+                                        <div class="metric-value temperature @GetTemperatureClass(dynamicSystemInfo.CpuTemperature)">
+                                            @dynamicSystemInfo.CpuTemperature.ToString("F1")°C
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +100,7 @@
                                 <div class="metric-card">
                                     <div class="metric-label">CPU Usage</div>
                                     <div class="metric-value">
-                                        @systemInfo.CpuUsage.ToString("F1")%
+                                        @dynamicSystemInfo.CpuUsage.ToString("F1")%
                                     </div>
                                 </div>
                             </div>
@@ -110,10 +108,10 @@
                                 <div class="metric-card">
                                     <div class="metric-label">Memory Usage</div>
                                     <div class="metric-value">
-                                        @systemInfo.MemoryUsage.ToString("F1")%
+                                        @dynamicSystemInfo.MemoryUsage.ToString("F1")%
                                     </div>
                                     <div class="metric-details">
-                                        @((systemInfo.MemoryTotal - systemInfo.MemoryAvailable).ToString("F0")) / @systemInfo.MemoryTotal.ToString("F0") MB
+                                        @((dynamicSystemInfo.MemoryTotal - dynamicSystemInfo.MemoryAvailable).ToString("F0")) / @dynamicSystemInfo.MemoryTotal.ToString("F0") MB
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +119,7 @@
                                 <div class="metric-card">
                                     <div class="metric-label">Memory Available</div>
                                     <div class="metric-value">
-                                        @systemInfo.MemoryAvailable.ToString("F0") MB
+                                        @dynamicSystemInfo.MemoryAvailable.ToString("F0") MB
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +143,7 @@
                             <div class="last-updated">
                                 <small class="text-muted">
                                     <i class="fas fa-clock me-1"></i>
-                                    Last updated: @systemInfo.LastUpdated.ToString("HH:mm:ss")
+                                    Last updated: @dynamicSystemInfo.LastUpdated.ToString("HH:mm:ss")
                                 </small>
                             </div>
                         </div>
@@ -164,57 +162,10 @@
                             <span class="visually-hidden">Loading...</span>
                         </div>
                         <h5>Loading system information...</h5>
-                        <p class="text-muted">Connecting to Raspberry Pi...</p>
+                        <p class="text-muted">@(isLoadingStatic ? "Gathering hardware details..." : "Connecting to rpi-mon...")</p>
                     </div>
                 </div>
             </div>
         </div>
     }
 </div>
-
-@code {
-    private HubConnection? hubConnection;
-    private SystemInfo? systemInfo;
-    private bool isConnected = false;
-    private bool isDarkMode = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/systeminfohub"))
-            .Build();
-
-        hubConnection.On<SystemInfo>("ReceiveSystemInfo", (info) =>
-        {
-            systemInfo = info;
-            InvokeAsync(StateHasChanged);
-        });
-
-        await hubConnection.StartAsync();
-        isConnected = hubConnection.State == HubConnectionState.Connected;
-    }
-
-    private string GetTemperatureClass(double temperature)
-    {
-        return temperature switch
-        {
-            >= 80 => "text-danger",
-            >= 70 => "text-warning",
-            _ => "text-success"
-        };
-    }
-
-    private async Task ToggleTheme()
-    {
-        isDarkMode = !isDarkMode;
-        await JSRuntime.InvokeVoidAsync("toggleTheme", isDarkMode);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (hubConnection is not null)
-        {
-            await hubConnection.DisposeAsync();
-        }
-    }
-}

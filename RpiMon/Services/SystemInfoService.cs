@@ -7,19 +7,54 @@ namespace RpiMon.Services;
 public interface ISystemInfoService
 {
     Task<SystemInfo> GetSystemInfoAsync();
+    Task<StaticSystemInfo> GetStaticSystemInfoAsync();
+    Task<DynamicSystemInfo> GetDynamicSystemInfoAsync();
 }
 
 public class SystemInfoService : ISystemInfoService
 {
     public async Task<SystemInfo> GetSystemInfoAsync()
     {
+        var staticInfo = await GetStaticSystemInfoAsync();
+        var dynamicInfo = await GetDynamicSystemInfoAsync();
+        
         var systemInfo = new SystemInfo
+        {
+            OperatingSystem = staticInfo.OperatingSystem,
+            Architecture = staticInfo.Architecture,
+            Model = staticInfo.Model,
+            RamSize = staticInfo.RamSize,
+            CpuInfo = staticInfo.CpuInfo,
+            CpuTemperature = dynamicInfo.CpuTemperature,
+            CpuUsage = dynamicInfo.CpuUsage,
+            MemoryUsage = dynamicInfo.MemoryUsage,
+            MemoryTotal = dynamicInfo.MemoryTotal,
+            MemoryAvailable = dynamicInfo.MemoryAvailable,
+            LastUpdated = dynamicInfo.LastUpdated
+        };
+
+        return systemInfo;
+    }
+
+    public async Task<StaticSystemInfo> GetStaticSystemInfoAsync()
+    {
+        var staticInfo = new StaticSystemInfo
         {
             OperatingSystem = GetOperatingSystem(),
             Architecture = GetArchitecture(),
             Model = await GetModelAsync(),
             RamSize = GetRamSize(),
             CpuInfo = await GetCpuInfoAsync(),
+            CpuCoreCount = Environment.ProcessorCount
+        };
+
+        return staticInfo;
+    }
+
+    public async Task<DynamicSystemInfo> GetDynamicSystemInfoAsync()
+    {
+        var dynamicInfo = new DynamicSystemInfo
+        {
             CpuTemperature = await GetCpuTemperatureAsync(),
             CpuUsage = await GetCpuUsageAsync(),
             MemoryUsage = GetMemoryUsage(),
@@ -28,7 +63,7 @@ public class SystemInfoService : ISystemInfoService
             LastUpdated = DateTime.Now
         };
 
-        return systemInfo;
+        return dynamicInfo;
     }
 
     private string GetOperatingSystem()
