@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/spindev/rpi-mon/compare/v1.1.4...v1.1.5) (2025-08-04)
+
+
+### Bug Fixes
+
+* ASP.NET Core antiforgery token decryption issue in containerized environment ([#27](https://github.com/spindev/rpi-mon/issues/27)) ([a0a0b82](https://github.com/spindev/rpi-mon/commit/a0a0b82d2bc43a1b1ae969b0701a854bf894e39e))
+
 ## [1.1.4](https://github.com/spindev/rpi-mon/compare/v1.1.3...v1.1.4) (2025-08-04)
 
 
