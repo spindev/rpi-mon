@@ -20,23 +20,15 @@ RUN dotnet publish -c Release -o out \
 # Runtime stage with minimal Alpine image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 
-# Install only essential system dependencies for hardware monitoring
-RUN apk add --no-cache \
-    procps \
-    && rm -rf /var/cache/apk/*
-
-# Create a non-root user for better security
-RUN addgroup -g 1001 -S appgroup && \
+# Install dependencies and create user in single layer
+RUN apk add --no-cache procps && \
+    rm -rf /var/cache/apk/* && \
+    addgroup -g 1001 -S appgroup && \
     adduser -S appuser -u 1001 -G appgroup
 
-# Set the working directory
+# Set the working directory and copy application with proper ownership
 WORKDIR /app
-
-# Copy the published application from build stage
-COPY --from=build /app/out .
-
-# Set proper ownership
-RUN chown -R appuser:appgroup /app
+COPY --from=build --chown=appuser:appgroup /app/out .
 
 # Switch to non-root user
 USER appuser
