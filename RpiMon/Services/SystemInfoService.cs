@@ -386,7 +386,7 @@ public class SystemInfoService : ISystemInfoService
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = "/bin/bash",
+                    FileName = "/bin/sh",
                     Arguments = $"-c \"{command}\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
