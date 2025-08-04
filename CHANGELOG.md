@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/spindev/rpi-mon/compare/v1.1.0...v1.1.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* Fix theme toggle button functionality ([#17](https://github.com/spindev/rpi-mon/issues/17)) ([1a01dde](https://github.com/spindev/rpi-mon/commit/1a01ddeadb442d62af6a10a44bf0d40f407a34fe))
+
 # [1.1.0](https://github.com/spindev/rpi-mon/compare/v1.0.2...v1.1.0) (2025-08-04)
 
 
