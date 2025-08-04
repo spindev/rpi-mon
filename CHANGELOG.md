@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/spindev/rpi-mon/compare/v1.1.1...v1.1.2) (2025-08-04)
+
+
+### Bug Fixes
+
+* WebSocket connection drops and improve logging for SignalR hub stability ([#19](https://github.com/spindev/rpi-mon/issues/19)) ([85eb288](https://github.com/spindev/rpi-mon/commit/85eb288b81148d00da38f8cbb302c5c388ce12a3))
+
 ## [1.1.1](https://github.com/spindev/rpi-mon/compare/v1.1.0...v1.1.1) (2025-08-04)
 
 
