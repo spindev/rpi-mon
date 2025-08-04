@@ -43,13 +43,20 @@ public class SystemInfoHub : Hub
 
     public override async Task OnConnectedAsync()
     {
-        // Send static info immediately on connection
-        var staticInfo = await _systemInfoService.GetStaticSystemInfoAsync();
-        await Clients.Caller.SendAsync("ReceiveStaticSystemInfo", staticInfo);
+        try
+        {
+            // Send static info immediately on connection
+            var staticInfo = await _systemInfoService.GetStaticSystemInfoAsync();
+            await Clients.Caller.SendAsync("ReceiveStaticSystemInfo", staticInfo);
 
-        // Send initial dynamic info
-        var dynamicInfo = await _systemInfoService.GetDynamicSystemInfoAsync();
-        await Clients.Caller.SendAsync("ReceiveDynamicSystemInfo", dynamicInfo);
+            // Send initial dynamic info
+            var dynamicInfo = await _systemInfoService.GetDynamicSystemInfoAsync();
+            await Clients.Caller.SendAsync("ReceiveDynamicSystemInfo", dynamicInfo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in OnConnectedAsync: {ex.Message}");
+        }
 
         await base.OnConnectedAsync();
     }
