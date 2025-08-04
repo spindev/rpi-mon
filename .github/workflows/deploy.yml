@@ -27,6 +27,12 @@ jobs:
       new-release-version: ${{ steps.semantic.outputs.new-release-version }}
       new-release-git-tag: ${{ steps.semantic.outputs.new-release-git-tag }}
     steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -43,7 +49,7 @@ jobs:
             @semantic-release/changelog
             @semantic-release/git
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
   build-and-push:
     needs: semantic-release
