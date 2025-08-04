@@ -1,8 +1,13 @@
 using RpiMon.Components;
 using RpiMon.Services;
 using RpiMon.Hubs;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure data protection to persist keys
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
